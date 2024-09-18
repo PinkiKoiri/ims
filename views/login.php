@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Password is correct
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = $row['role']; // Save the role in the session
-                header("location: home.php");
+                header("location: dashboard.php");
                 exit();
             } else {
                 // Password is incorrect
