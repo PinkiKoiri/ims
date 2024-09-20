@@ -2,7 +2,7 @@
 session_start();
 require '../config/dbcon.php'; // Include your database configuration
 
-if (!$con) {
+if (!$conn) {
     die("Connection Failed: " . mysqli_connect_error());
 }
 
@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $sql = "SELECT * FROM users WHERE username = ?";
 
-    if ($stmt = $con->prepare($sql)) {
+    if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    $con->close();
+    $conn->close();
 }
 ?>
 
