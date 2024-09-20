@@ -2,7 +2,7 @@
 session_start();
 require './config/dbcon.php';
 
-if (!$con) {
+if (!$conn) {
     die("Connection Failed: " . mysqli_connect_error());
 }
 ?>

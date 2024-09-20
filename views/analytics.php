@@ -1,37 +1,46 @@
 <?php
-// session_start();
 require '../config/dbcon.php';
 
-// if (!isset($_SESSION['username'])) {
-//     header("location: ../index.php");
-//     exit();
-// }
+// Fetch data for dashboard
+$total_assets_query = "SELECT COUNT(*) as count FROM assets";
+$total_assets_result = mysqli_query($conn, $total_assets_query);
+$total_assets = mysqli_fetch_assoc($total_assets_result)['count'];
 
-// Fetch data for dashboard (replace with actual queries)
-$total_warehouse = 5;
-$no_of_brands = 20;
-$no_of_categories = 15;
-$no_of_products = 100;
+$unique_asset_types_query = "SELECT COUNT(DISTINCT asset_type) as count FROM assets";
+$unique_asset_types_result = mysqli_query($conn, $unique_asset_types_query);
+$unique_asset_types = mysqli_fetch_assoc($unique_asset_types_result)['count'];
 
-$quantity_in_hand = 1000;
-$product_missing = 5;
-$product_damage = 3;
+$unique_locations_query = "SELECT COUNT(DISTINCT location) as count FROM assets";
+$unique_locations_result = mysqli_query($conn, $unique_locations_query);
+$unique_locations = mysqli_fetch_assoc($unique_locations_result)['count'];
+
+$unique_models_query = "SELECT COUNT(DISTINCT model_no) as count FROM assets";
+$unique_models_result = mysqli_query($conn, $unique_models_query);
+$unique_models = mysqli_fetch_assoc($unique_models_result)['count'];
+
+// Fetch status summary
+$status_summary_query = "SELECT status, COUNT(*) as count FROM assets GROUP BY status";
+$status_summary_result = mysqli_query($conn, $status_summary_query);
+$status_summary = [];
+while ($row = mysqli_fetch_assoc($status_summary_result)) {
+    $status_summary[$row['status']] = $row['count'];
+}
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <!-- <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrackR Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+    <title>TrackR </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* body {
+        body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        } */
+        }
 
         .dashboard-card {
             background-color: #ffffff;
@@ -70,112 +79,85 @@ $product_damage = 3;
     </style>
 </head>
 
+<body>
+    <?php include 'header.php'; ?>
 
-<?php include 'header.php'; ?>
+    <div class="container mt-4">
+        <h1 class="mb-4">Analytics</h1>
 
-<div class="container mt-4">
-    <h1 class="mb-4">Analytics</h1>
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="section-title">Inventory Overview</h2>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="card-title">Total Assets</div>
+                            <div class="card-value"><?php echo $total_assets; ?></div>
+                        </div>
+                        <i class="fas fa-boxes card-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="card-title">Unique Asset Types</div>
+                            <div class="card-value"><?php echo $unique_asset_types; ?></div>
+                        </div>
+                        <i class="fas fa-tags card-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="card-title">Unique Locations</div>
+                            <div class="card-value"><?php echo $unique_locations; ?></div>
+                        </div>
+                        <i class="fas fa-map-marker-alt card-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="card-title">Unique Models</div>
+                            <div class="card-value"><?php echo $unique_models; ?></div>
+                        </div>
+                        <i class="fas fa-barcode card-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="section-title">Inventory Overview</h2>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">Total Warehouses</div>
-                        <div class="card-value"><?php echo $total_warehouse; ?></div>
-                    </div>
-                    <i class="fas fa-warehouse card-icon"></i>
-                </div>
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Status Summary</h2>
             </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">No. of Brands</div>
-                        <div class="card-value"><?php echo $no_of_brands; ?></div>
+            <?php foreach ($status_summary as $status => $count): ?>
+                <div class="col-md-4 mb-3">
+                    <div class="dashboard-card p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="card-title"><?php echo ucfirst($status); ?></div>
+                                <div class="card-value"><?php echo $count; ?></div>
+                            </div>
+                            <i class="fas fa-info-circle card-icon"></i>
+                        </div>
                     </div>
-                    <i class="fas fa-tag card-icon"></i>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">No. of Categories</div>
-                        <div class="card-value"><?php echo $no_of_categories; ?></div>
-                    </div>
-                    <i class="fas fa-list card-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">No. of Products</div>
-                        <div class="card-value"><?php echo $no_of_products; ?></div>
-                    </div>
-                    <i class="fas fa-box card-icon"></i>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <h2 class="section-title">Inventory Summary</h2>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">Quantity in Hand</div>
-                        <div class="card-value"><?php echo $quantity_in_hand; ?></div>
-                    </div>
-                    <i class="fas fa-cubes card-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">Missing Products</div>
-                        <div class="card-value"><?php echo $product_missing; ?></div>
-                    </div>
-                    <i class="fas fa-search card-icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="card-title">Damaged Products</div>
-                        <div class="card-value"><?php echo $product_damage; ?></div>
-                    </div>
-                    <i class="fas fa-exclamation-triangle card-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <?php include 'footer.php'; ?>
+</body>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <!-- <h1>Welcome to TrackR</h1>
-            <p>This is the home page of TrackR, your inventory management solution.</p> -->
-        </div>
-    </div>
-</div>
-<?php
-include("footer.php");
-?>
+</html>

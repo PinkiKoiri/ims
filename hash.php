@@ -13,7 +13,7 @@ foreach ($users as $user) {
 
     // Check if user exists
     $check_sql = "SELECT * FROM users WHERE username = ?";
-    $check_stmt = $con->prepare($check_sql);
+    $check_stmt = $conn->prepare($check_sql);
     $check_stmt->bind_param("s", $user['username']);
     $check_stmt->execute();
     $result = $check_stmt->get_result();
@@ -21,12 +21,12 @@ foreach ($users as $user) {
     if ($result->num_rows > 0) {
         // User exists, update
         $sql = "UPDATE users SET password = ?, role = ? WHERE username = ?";
-        $stmt = $con->prepare($sql);
+        $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $hashed_password, $user['role'], $user['username']);
     } else {
         // User doesn't exist, insert
         $sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
-        $stmt = $con->prepare($sql);
+        $stmt = $conn->prepare($sql);
         $stmt->bind_param("sss", $user['username'], $hashed_password, $user['role']);
     }
 
@@ -40,4 +40,4 @@ foreach ($users as $user) {
     $stmt->close();
 }
 
-$con->close();
+$conn->close();
