@@ -2,6 +2,11 @@
 session_start();
 require '../config/dbcon.php'; // Include your database configuration
 
+if (isset($_SESSION['username'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
 if (!$conn) {
     die("Connection Failed: " . mysqli_connect_error());
 }

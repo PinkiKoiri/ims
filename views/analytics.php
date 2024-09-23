@@ -90,7 +90,7 @@ while ($row = mysqli_fetch_assoc($status_summary_result)) {
                 <h2 class="section-title">Inventory Overview</h2>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="dashboard-card p-3">
+                <div class="dashboard-card p-3" data-status="all">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="card-title">Total Assets</div>
@@ -141,7 +141,7 @@ while ($row = mysqli_fetch_assoc($status_summary_result)) {
             </div>
             <?php foreach ($status_summary as $status => $count): ?>
                 <div class="col-md-4 mb-3">
-                    <div class="dashboard-card p-3">
+                    <div class="dashboard-card p-3" data-status="<?php echo strtolower($status); ?>">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="card-title"><?php echo ucfirst($status); ?></div>
@@ -153,7 +153,70 @@ while ($row = mysqli_fetch_assoc($status_summary_result)) {
                 </div>
             <?php endforeach; ?>
         </div>
+
+        <!-- Add this container for the dynamic table -->
+        <div id="assetTableContainer" class="mt-4" style="display: none;">
+            <h2 id="tableTitle" class="section-title"></h2>
+            <div class="table-responsive">
+                <table id="assetTable" class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Sl no</th>
+                            <th>Asset Type</th>
+                            <th>Model no</th>
+                            <th>Serial no</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.dashboard-card').click(function() {
+                var status = $(this).data('status');
+                var title = $(this).find('.card-title').text();
+                $('#tableTitle').text(title + ' Assets');
+
+                $.ajax({
+                    url: 'get_assets.php',
+                    method: 'GET',
+                    data: {
+                        status: status
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        var tableBody = $('#assetTableBody');
+                        tableBody.empty();
+
+                        $.each(response, function(index, asset) {
+                            var row = '<tr>' +
+                                '<td>' + asset.sl_no + '</td>' +
+                                '<td>' + asset.asset_type + '</td>' +
+                                '<td>' + asset.model_no + '</td>' +
+                                '<td>' + asset.serial_no + '</td>' +
+                                '<td>' + asset.location + '</td>' +
+                                '<td>' + asset.status + '</td>' +
+                                '</tr>';
+                            tableBody.append(row);
+                        });
+
+                        $('#assetTableContainer').show();
+                    },
+                    error: function() {
+                        alert('Error fetching asset data');
+                    }
+                });
+            });
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

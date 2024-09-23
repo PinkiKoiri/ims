@@ -5,6 +5,11 @@ require './config/dbcon.php';
 if (!$conn) {
     die("Connection Failed: " . mysqli_connect_error());
 }
+
+if (isset($_SESSION['username'])) {
+    header("Location: ./views/dashboard.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

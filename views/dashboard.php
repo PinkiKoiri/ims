@@ -1,6 +1,7 @@
 <?php
 
 require '../config/dbcon.php';
+// session_start(); // Start the session to access session variables
 
 // Initialize search term
 $search_term = isset($_GET['search_term']) ? mysqli_real_escape_string($conn, $_GET['search_term']) : '';
@@ -31,6 +32,21 @@ $total_rows = mysqli_fetch_assoc($total_rows_result)['count'];
 $total_pages = ceil($total_rows / $rows_per_page);
 
 ?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
+    $new_status = mysqli_real_escape_string($conn, $_POST['status']);
+    $asset_id = (int)$_POST['asset_id'];
+
+    $update_query = "UPDATE assets SET status='$new_status' WHERE sl_no=$asset_id";
+    if (mysqli_query($conn, $update_query)) {
+        echo "<script>alert('Status updated successfully');</script>";
+    } else {
+        echo "<script>alert('Failed to update status');</script>";
+    }
+}
+?>
+
 <?php include 'header.php'; ?>
 
 <div class="container mt-4">
@@ -49,6 +65,13 @@ $total_pages = ceil($total_rows / $rows_per_page);
         </div>
     </form>
 
+    <!-- Display total count of assets matching the search term -->
+    <?php if (!empty($search_term)): ?>
+        <div class="alert alert-info">
+            Total assets found: <?php echo $total_rows; ?>
+        </div>
+    <?php endif; ?>
+
     <!-- ... existing dashboard cards ... -->
 
     <div class="row mt-4">
@@ -63,12 +86,17 @@ $total_pages = ceil($total_rows / $rows_per_page);
                             <th>Model no</th>
                             <th>Serial no</th>
                             <th>Delivery Date</th>
-                            <th>Installation Type</th>
+                            <!-- <th>Installation Type</th> -->
                             <th>Installation Date</th>
                             <th>P.O order ref no</th>
                             <th>Location of physical installation</th>
                             <th>Warranty <br>(Months)</th>
+                            <th>Price(Single item)</th>
+                            <th>Quantity Delivered</th>
                             <th>Status</th>
+                            <?php if ($_SESSION['role'] == 'admin'): ?>
+                                <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,19 +108,32 @@ $total_pages = ceil($total_rows / $rows_per_page);
                             echo "<td>" . $row['model_no'] . "</td>";
                             echo "<td>" . $row['serial_no'] . "</td>";
                             echo "<td>" . $row['delivery_date'] . "</td>";
-                            echo "<td>" . $row['installation_type'] . "</td>";
+                            // echo "<td>" . $row['installation_type'] . "</td>";
                             echo "<td>" . $row['installation_date'] . "</td>";
-
                             echo "<td>" . $row['po_order_ref_no'] . "</td>";
                             echo "<td>" . $row['location'] . "</td>";
                             echo "<td>" . $row['warranty'] . "</td>";
+                            echo "<td>" . $row['price'] . "</td>";
+                            echo "<td>" . $row['quantity'] . "</td>";
                             echo "<td>";
+                            echo '<div class="status-container">';
                             if (strtolower($row['status']) == 'active') {
-                                echo '<span class="status-dot active"></span> ';
+                                echo '<span class="status-dot active"></span>';
                             } elseif (strtolower($row['status']) == 'maintenance') {
-                                echo '<span class="status-dot maintenance"></span> ';
+                                echo '<span class="status-dot maintenance"></span>';
+                            } elseif (strtolower($row['status']) == 'non repairable') {
+                                echo '<span class="status-dot non-repairable"></span>';
                             }
-                            echo $row['status'] . "</td>";
+                            echo '<span class="status-text">' . $row['status'] . '</span>';
+                            echo '</div>';
+                            echo "</td>";
+                            if ($_SESSION['role'] == 'admin') {
+                                echo "<td>";
+                        ?>
+                                <a href="edit_status.php?asset_id=<?php echo $row['sl_no']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                        <?php
+                                echo "</td>";
+                            }
                             echo "</tr>";
                         }
                         ?>
@@ -138,12 +179,17 @@ $total_pages = ceil($total_rows / $rows_per_page);
 </div>
 
 <style>
+    .status-container {
+        display: flex;
+        align-items: center;
+    }
+
     .status-dot {
-        display: inline-block;
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        margin-right: 2px;
+        margin-right: 5px;
+        /* Adjusted for better spacing */
     }
 
     .status-dot.active {
@@ -152,6 +198,10 @@ $total_pages = ceil($total_rows / $rows_per_page);
 
     .status-dot.maintenance {
         background-color: #ffc107;
+    }
+
+    .status-dot.non-repairable {
+        background-color: #dc2626;
     }
 </style>
 

@@ -1,6 +1,10 @@
 <?php
 session_start();
 $current_page = basename($_SERVER['PHP_SELF']);
+if (!isset($_SESSION['username'])) {
+    header("Location: ../index.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
