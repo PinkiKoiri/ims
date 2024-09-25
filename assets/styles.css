@@ -21,3 +21,7 @@ body {
 .table {
     font-size: 14px;
 }
+
+.required {
+    color: red;
+}

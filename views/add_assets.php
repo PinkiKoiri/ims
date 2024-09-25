@@ -11,17 +11,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $serial_no = mysqli_real_escape_string($conn, $_POST['serial_no']);
     $delivery_date = mysqli_real_escape_string($conn, $_POST['delivery_date']);
     // $installation_type = mysqli_real_escape_string($conn, $_POST['installation_type']);
-    $installation_date = mysqli_real_escape_string($conn, $_POST['installation_date']);
+    // $installation_date = mysqli_real_escape_string($conn, $_POST['installation_date']);
     $po_order_ref_no = mysqli_real_escape_string($conn, $_POST['po_order_ref_no']);
-    $location = mysqli_real_escape_string($conn, $_POST['location']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']);
+    // $location = mysqli_real_escape_string($conn, $_POST['location']);
+    // $status = mysqli_real_escape_string($conn, $_POST['status']);
     $warranty = mysqli_real_escape_string($conn, $_POST['warranty']);
     $price = mysqli_real_escape_string($conn, $_POST['price']);
     $quantity = mysqli_real_escape_string($conn, $_POST['quantity']);
 
     // Insert data into the database
-    $query = "INSERT INTO assets (asset_type, model_no, serial_no, delivery_date, installation_date, po_order_ref_no, location, status, warranty, price, quantity) 
-              VALUES ('$asset_type', '$model_no', '$serial_no', '$delivery_date', '$installation_date', '$po_order_ref_no', '$location', '$status', '$warranty', '$price', '$quantity'  )";
+    $query = "INSERT INTO assets (asset_type, model_no, serial_no, delivery_date, po_order_ref_no, warranty, price, quantity) 
+              VALUES ('$asset_type', '$model_no', '$serial_no', '$delivery_date', '$po_order_ref_no', '$warranty', '$price', '$quantity'  )";
 
     if (mysqli_query($conn, $query)) {
         $message = "<div class='alert alert-success'>Asset added successfully!</div>";
@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
+
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <form method="POST" action="" id="assetForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="asset_type" class="form-label">Asset Type</label>
+                                <label for="asset_type" class="form-label">Asset Type <span class="required">*</span></label>
                                 <select class="form-select" id="asset_type" name="asset_type" required>
                                     <option value="">Select Asset Type</option>
                                     <option value="L2 Manageable 48 port Switch">L2 Manageable 48 port Switch</option>
@@ -73,17 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="model_no" class="form-label">Model Number</label>
+                                <label for="model_no" class="form-label">Model Number <span class="required">*</span></label>
                                 <input type="text" class="form-control" id="model_no" name="model_no" required minlength="5" maxlength="20">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="serial_no" class="form-label">Serial Number</label>
+                                <label for="serial_no" class="form-label">Serial Number (if any)</label>
                                 <input type="text" class="form-control" id="serial_no" name="serial_no" minlength="5" maxlength="20">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="delivery_date" class="form-label">Delivery Date</label>
+                                <label for="delivery_date" class="form-label">Delivery Date <span class="required">*</span></label>
                                 <input type="date" class="form-control" id="delivery_date" name="delivery_date" required max="<?php echo date('Y-m-d'); ?>">
                             </div>
                         </div>
@@ -92,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label for="installation_type" class="form-label">Installation Type</label>
                                 <input type="text" class="form-control" id="installation_type" name="installation_type" minlength="5" maxlength="40">
                             </div> -->
-                            <div class="col-md-6 mb-3">
+                            <!-- <div class="col-md-6 mb-3">
                                 <div class="mb-3">
                                     <label for="status" class="form-label">Status</label>
                                     <select class="form-select" id="status" name="status" required>
@@ -102,37 +104,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <option value="Inactive">Non repairable</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
+                            </div> -->
+                            <!-- <div class="col-md-6 mb-3">
                                 <label for="installation_date" class="form-label">Installation Date</label>
                                 <input type="date" class="form-control" id="installation_date" name="installation_date" required max="<?php echo date('Y-m-d'); ?>">
-                            </div>
+                            </div> -->
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="po_order_ref_no" class="form-label">P.O. Order Ref No</label>
-                                <input type="text" class="form-control" id="po_order_ref_no" name="po_order_ref_no" required title="Alphanumeric characters and slashes only.">
+                                <label for="po_order_ref_no" class="form-label">P.O. Order Ref No <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="po_order_ref_no" name="po_order_ref_no" required title="Alphanumeric characters and slashes only." minlength="5" maxlength="20" pattern="^[a-zA-Z0-9/]+$">
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class=" col-md-6 mb-3">
                                 <label for="warranty" class="form-label">Warranty (in months)</label>
-                                <input type="number" class="form-control" id="warranty" name="warranty" required>
+                                <input type="number" class="form-control" id="warranty" name="warranty">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="quantity" class="form-label">Quantity Delivered</label>
-                                <input type="text" class="form-control" id="quantity" name="quantity" required>
+                                <label for="quantity" class="form-label">Quantity Delivered <span class="required">*</span></label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" required>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="price" class="form-label">Price (Single item)</label>
+                                <label for="price" class="form-label">Price (Single item) <span class="required">*</span></label>
                                 <input type="number" class="form-control" id="price" name="price" required>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <!-- <div class="mb-3">
                             <label for="location" class="form-label">Location of Physical Installation</label>
-                            <!-- <label for="department" class="form-label">Department <span class="required">*</span></label> -->
                             <select class="form-select form-control cursor-pointer" id="location" name="location" required>
                                 <option value="">Select Department</option>
                                 <?php
@@ -144,19 +145,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 }
                                 ?>
                             </select>
-                        </div>
-                        <div class="row">
+                        </div> -->
+
+                        <div class="row justify-content-between">
+                            <div class="col-md-3 d-flex justify-content-start "> <button type="" class="btn btn-secondary w-100" onclick="window.history.back();">Cancel</button>
+                            </div>
+                            <div class="col-md-3 d-flex justify-content-end"> <button type="submit" class="btn btn-primary w-100" id="submitBtn">Add Asset</button>
+                            </div>
+
 
                         </div>
                 </div>
 
 
 
-                <div class="">
-                    <button type="" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
-
-                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Add Asset</button>
-                </div>
                 </form>
             </div>
         </div>
@@ -169,29 +171,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         const form = document.getElementById('assetForm');
         const submitBtn = document.getElementById('submitBtn');
         const deliveryDate = document.getElementById('delivery_date');
-        const installationDate = document.getElementById('installation_date');
-        const location = document.getElementById('location');
+        // const installationDate = document.getElementById('installation_date');
+        // const location = document.getElementById('location');
         const poOrderRefNo = document.getElementById('po_order_ref_no');
 
         // Set max date for date inputs
         const today = new Date().toISOString().split('T')[0];
         deliveryDate.max = today;
-        installationDate.max = today;
+        // installationDate.max = today;
 
         // Function to check if all fields are valid
         function checkFormValidity() {
             const isFormValid = form.checkValidity();
             const areDatesValid = checkDateValidity();
-            const isLocationValid = /^[a-zA-Z0-9\s]+$/.test(location.value);
+            // const isLocationValid = /^[a-zA-Z0-9\s]+$/.test(location.value);
             const isPoOrderRefNoValid = /^[a-zA-Z0-9/]+$/.test(poOrderRefNo.value);
 
-            submitBtn.disabled = !(isFormValid && areDatesValid && isLocationValid && isPoOrderRefNoValid);
+            // submitBtn.disabled = !(isFormValid && areDatesValid && isLocationValid);
         }
 
         // Function to check if dates are valid
         function checkDateValidity() {
             const deliveryValue = deliveryDate.value;
-            const installationValue = installationDate.value;
+            // const installationValue = installationDate.value;
 
             if (deliveryValue && installationValue) {
                 return new Date(deliveryValue) <= new Date(installationValue);
@@ -213,14 +215,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         installationDate.addEventListener('change', checkFormValidity);
 
         // Special handling for location field
-        location.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
-        });
+        // location.addEventListener('input', function(e) {
+        //     this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');
+        // });
 
         // Special handling for P.O. Order Ref No field
-        poOrderRefNo.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-zA-Z0-9/]/g, '');
-        });
+        // poOrderRefNo.addEventListener('input', function(e) {
+        //     this.value = this.value.replace(/[^a-zA-Z0-9/]/g, '');
+        // });
 
         // Prevent form submission if any field is invalid
         form.addEventListener('submit', function(event) {

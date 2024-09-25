@@ -14,19 +14,21 @@ $offset = ($page - 1) * $rows_per_page;
 // Modify the query to include search
 $query = "SELECT * FROM assets WHERE 1=1";
 if (!empty($search_term)) {
-    $query .= " AND (location LIKE '%$search_term%' OR asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
+    $query .= " AND (asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
 }
 $query .= " ORDER BY sl_no LIMIT $rows_per_page OFFSET $offset";
 
 $result = mysqli_query($conn, $query);
 
-// Modify total rows query to include search
-$total_rows_query = "SELECT COUNT(*) as count FROM assets WHERE 1=1";
+// Modify total rows query to include search and sum quantity
+$total_rows_query = "SELECT COUNT(*) as count, SUM(quantity) as total_quantity FROM assets WHERE 1=1";
 if (!empty($search_term)) {
-    $total_rows_query .= " AND (location LIKE '%$search_term%' OR asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
+    $total_rows_query .= " AND (asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
 }
 $total_rows_result = mysqli_query($conn, $total_rows_query);
-$total_rows = mysqli_fetch_assoc($total_rows_result)['count'];
+$total_rows_data = mysqli_fetch_assoc($total_rows_result);
+$total_rows = $total_rows_data['count'];
+$total_quantity = $total_rows_data['total_quantity'];
 
 // Calculate total pages
 $total_pages = ceil($total_rows / $rows_per_page);
@@ -56,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
     <form method="GET" class="mb-4">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <input type="text" class="form-control" name="search_term" placeholder="Search by Location, Asset Type, or Model No" value="<?php echo htmlspecialchars($search_term); ?>">
+                <input type="text" class="form-control" name="search_term" placeholder="Search by Asset Type, or Model No" value="<?php echo htmlspecialchars($search_term); ?>">
             </div>
             <div class="col-md-3 mb-3">
                 <button type="submit" class="btn btn-primary">Search</button>
@@ -68,15 +70,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
     <!-- Display total count of assets matching the search term -->
     <?php if (!empty($search_term)): ?>
         <div class="alert alert-info">
-            Total assets found: <?php echo $total_rows; ?>
+            <!-- Total assets found: <?php echo $total_rows; ?> | -->
+            Total quantity delivered: <?php echo $total_quantity; ?>
         </div>
     <?php endif; ?>
 
     <!-- ... existing dashboard cards ... -->
 
     <div class="row mt-4">
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-between align-items-center">
             <h2 class="section-title">Asset Inventory</h2>
+            <a href="insert_assets_condition.php" class="btn btn-primary">Add Location & Status</a>
+        </div>
+
+        <div class="col-12">
+
+
             <div class="table-responsive">
                 <table class="table table-striped table-bordered">
                     <thead class="thead-dark">
@@ -87,16 +96,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
                             <th>Serial no</th>
                             <th>Delivery Date</th>
                             <!-- <th>Installation Type</th> -->
-                            <th>Installation Date</th>
+                            <!-- <th>Installation Date</th> -->
                             <th>P.O order ref no</th>
-                            <th>Location of physical installation</th>
+                            <!-- <th>Location of physical installation</th> -->
                             <th>Warranty <br>(Months)</th>
                             <th>Price(Single item)</th>
                             <th>Quantity Delivered</th>
-                            <th>Status</th>
-                            <?php if ($_SESSION['role'] == 'admin'): ?>
+                            <!-- <th>Status</th> -->
+                            <!-- <?php if ($_SESSION['role'] == 'admin'): ?>
                                 <th>Actions</th>
-                            <?php endif; ?>
+                            <?php endif; ?> -->
                         </tr>
                     </thead>
                     <tbody>
@@ -109,31 +118,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
                             echo "<td>" . $row['serial_no'] . "</td>";
                             echo "<td>" . $row['delivery_date'] . "</td>";
                             // echo "<td>" . $row['installation_type'] . "</td>";
-                            echo "<td>" . $row['installation_date'] . "</td>";
+                            // echo "<td>" . $row['installation_date'] . "</td>";
                             echo "<td>" . $row['po_order_ref_no'] . "</td>";
-                            echo "<td>" . $row['location'] . "</td>";
+                            // echo "<td>" . $row['location'] . "</td>";
                             echo "<td>" . $row['warranty'] . "</td>";
                             echo "<td>" . $row['price'] . "</td>";
                             echo "<td>" . $row['quantity'] . "</td>";
-                            echo "<td>";
-                            echo '<div class="status-container">';
-                            if (strtolower($row['status']) == 'active') {
-                                echo '<span class="status-dot active"></span>';
-                            } elseif (strtolower($row['status']) == 'maintenance') {
-                                echo '<span class="status-dot maintenance"></span>';
-                            } elseif (strtolower($row['status']) == 'non repairable') {
-                                echo '<span class="status-dot non-repairable"></span>';
-                            }
-                            echo '<span class="status-text">' . $row['status'] . '</span>';
-                            echo '</div>';
-                            echo "</td>";
-                            if ($_SESSION['role'] == 'admin') {
-                                echo "<td>";
-                        ?>
-                                <a href="edit_status.php?asset_id=<?php echo $row['sl_no']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                        <?php
-                                echo "</td>";
-                            }
+                            // echo "<td>";
+                            // echo '<div class="status-container">';
+                            // if (strtolower($row['status']) == 'active') {
+                            //     echo '<span class="status-dot active"></span>';
+                            // } elseif (strtolower($row['status']) == 'maintenance') {
+                            //     echo '<span class="status-dot maintenance"></span>';
+                            // } elseif (strtolower($row['status']) == 'non repairable') {
+                            //     echo '<span class="status-dot non-repairable"></span>';
+                            // }
+                            // echo '<span class="status-text">' . $row['status'] . '</span>';
+                            // echo '</div>';
+                            // echo "</td>";
+
                             echo "</tr>";
                         }
                         ?>
