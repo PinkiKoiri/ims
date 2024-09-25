@@ -153,27 +153,6 @@ $is_admin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
             </div>
         </div>
 
-        <!-- Add this container for the dynamic table -->
-        <div id="assetTableContainer" class="mt-4" style="display: none;">
-            <h2 id="tableTitle" class="section-title"></h2>
-            <div class="table-responsive">
-                <table id="assetTable" class="table table-striped table-bordered">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Sl no</th>
-                            <th>Asset Type</th>
-                            <th>Model no</th>
-                            <th>Serial no</th>
-                            <th>Location</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assetTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- Add this section to display all assets in a table format -->
         <div class="mt-4">
             <h2 class="section-title">All Assets</h2>
@@ -194,7 +173,7 @@ $is_admin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
                     </thead>
                     <tbody>
                         <?php foreach ($all_assets as $asset): ?>
-                            <tr>
+                            <tr data-status="<?php echo strtolower($asset['status']); ?>">
                                 <td><?php echo $asset['sl_no']; ?></td>
                                 <td><?php echo $asset['asset_type']; ?></td>
                                 <td><?php echo $asset['model_no']; ?></td>
@@ -235,53 +214,61 @@ $is_admin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            console.log('Document ready');
+
             $('.dashboard-card').click(function() {
-                var status = $(this).data('status');
+                console.log('Dashboard card clicked');
+
+                var status = $(this).data('status').toLowerCase();
                 var title = $(this).find('.card-title').text();
-                $('#tableTitle').text(title + ' Assets_condition');
+                console.log('Status:', status, 'Title:', title);
 
-                $.ajax({
-                    url: 'get_assets.php',
-                    method: 'GET',
-                    data: {
-                        status: status
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        var tableBody = $('#assetTableBody');
-                        tableBody.empty();
+                $('#statusFilter').text('- ' + title);
 
-                        $.each(response, function(index, asset) {
-                            var statusColor = '';
-                            switch (asset.status.toLowerCase()) {
-                                case 'active':
-                                    statusColor = 'green';
-                                    break;
-                                case 'maintenance':
-                                    statusColor = 'yellow';
-                                    break;
-                                case 'non repairable':
-                                    statusColor = 'red';
-                                    break;
-                            }
+                filterTable(status);
+            });
 
-                            var row = '<tr>' +
-                                '<td>' + asset.sl_no + '</td>' +
-                                '<td>' + asset.asset_type + '</td>' +
-                                '<td>' + asset.model_no + '</td>' +
-                                '<td>' + asset.serial_no + '</td>' +
-                                '<td>' + asset.location + '</td>' +
-                                '<td><span class="status-dot" style="background-color: ' + statusColor + ';"></span>' + asset.status + '</td>' +
-                                '</tr>';
-                            tableBody.append(row);
-                        });
+            // Add a "Reset" button
+            $('<button>')
+                .text('Reset')
+                .addClass('btn btn-secondary mb-3 me-2')
+                .click(function() {
+                    console.log('Reset clicked');
+                    $('#statusFilter').text('');
+                    $('table tbody tr').show();
+                })
+                .insertBefore('table');
 
-                        $('#assetTableContainer').show();
-                    },
-                    error: function() {
-                        alert('Error fetching asset data');
+            // Existing "Show All" button (renamed to avoid confusion)
+            $('<button>')
+                .text('Show All')
+                .addClass('btn btn-primary mb-3')
+                .click(function() {
+                    console.log('Show All clicked');
+                    $('#statusFilter').text('');
+                    $('table tbody tr').show();
+                })
+                .insertBefore('table');
+
+            function filterTable(status) {
+                var visibleRows = 0;
+                $('table tbody tr').each(function() {
+                    var rowStatus = $(this).data('status');
+                    console.log('Row status:', rowStatus, 'Comparing with:', status);
+                    if (rowStatus === status) {
+                        $(this).show();
+                        visibleRows++;
+                    } else {
+                        $(this).hide();
                     }
                 });
+                console.log('Visible rows:', visibleRows);
+            }
+
+            // Log all row statuses on page load
+            console.log('All row statuses:');
+            $('table tbody tr').each(function() {
+                console.log($(this).data('status'));
             });
         });
     </script>

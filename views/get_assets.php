@@ -1,40 +1,21 @@
 <?php
-session_start();
 require '../config/dbcon.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['username'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit();
-}
+$status = isset($_GET['status']) ? $_GET['status'] : '';
 
-$status = isset($_GET['status']) ? $_GET['status'] : 'all';
-
-$query = "SELECT sl_no, asset_type, model_no, serial_no, location, status FROM assets";
-
-if ($status !== 'all') {
-    $query .= " WHERE status = ?";
-}
-
-$query .= " ORDER BY sl_no";
-
-$stmt = $conn->prepare($query);
-
-if ($status !== 'all') {
-    $stmt->bind_param("s", $status);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
+$query = "SELECT * FROM assets_condition WHERE status = ?";
+$stmt = mysqli_prepare($conn, $query);
+mysqli_stmt_bind_param($stmt, "s", $status);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $assets = [];
-while ($row = $result->fetch_assoc()) {
+while ($row = mysqli_fetch_assoc($result)) {
     $assets[] = $row;
 }
 
-$stmt->close();
-$conn->close();
+mysqli_stmt_close($stmt);
+mysqli_close($conn);
 
 header('Content-Type: application/json');
 echo json_encode($assets);
