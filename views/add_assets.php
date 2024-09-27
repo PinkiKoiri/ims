@@ -7,8 +7,8 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve form data
     $asset_type = mysqli_real_escape_string($conn, $_POST['asset_type']);
-    $model_no = mysqli_real_escape_string($conn, $_POST['model_no']);
-    $serial_no = mysqli_real_escape_string($conn, $_POST['serial_no']);
+    // $model_no = mysqli_real_escape_string($conn, $_POST['model_no']);
+    // $serial_no = mysqli_real_escape_string($conn, $_POST['serial_no']);
     $delivery_date = mysqli_real_escape_string($conn, $_POST['delivery_date']);
     // $installation_type = mysqli_real_escape_string($conn, $_POST['installation_type']);
     // $installation_date = mysqli_real_escape_string($conn, $_POST['installation_date']);
@@ -20,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $quantity = mysqli_real_escape_string($conn, $_POST['quantity']);
 
     // Insert data into the database
-    $query = "INSERT INTO assets (asset_type, model_no, serial_no, delivery_date, po_order_ref_no, warranty, price, quantity) 
-              VALUES ('$asset_type', '$model_no', '$serial_no', '$delivery_date', '$po_order_ref_no', '$warranty', '$price', '$quantity'  )";
+    $query = "INSERT INTO assets (asset_type, delivery_date, po_order_ref_no, warranty, price, quantity) 
+              VALUES ('$asset_type', ' $delivery_date', '$po_order_ref_no', '$warranty', '$price', '$quantity'  )";
 
     if (mysqli_query($conn, $query)) {
         $message = "<div class='alert alert-success'>Asset added successfully!</div>";
@@ -74,16 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <option value="UTP Patch cord (1mtr)">UTP Patch cord (1mtr)</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <!-- <div class="col-md-6 mb-3">
                                 <label for="model_no" class="form-label">Model Number <span class="required">*</span></label>
                                 <input type="text" class="form-control" id="model_no" name="model_no" required minlength="5" maxlength="20">
-                            </div>
+                            </div> -->
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <!-- <div class="col-md-6 mb-3">
                                 <label for="serial_no" class="form-label">Serial Number (if any)</label>
                                 <input type="text" class="form-control" id="serial_no" name="serial_no" minlength="5" maxlength="20">
-                            </div>
+                            </div> -->
                             <div class="col-md-6 mb-3">
                                 <label for="delivery_date" class="form-label">Delivery Date <span class="required">*</span></label>
                                 <input type="date" class="form-control" id="delivery_date" name="delivery_date" required max="<?php echo date('Y-m-d'); ?>">
@@ -118,18 +118,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                             <div class=" col-md-6 mb-3">
                                 <label for="warranty" class="form-label">Warranty (in months)</label>
-                                <input type="number" class="form-control" id="warranty" name="warranty">
+                                <input type="text" class="form-control" id="warranty" name="warranty" min="1" maxlength="3">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="quantity" class="form-label">Quantity Delivered <span class="required">*</span></label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" required>
+                                <input type="text" class="form-control" id="quantity" name="quantity" required min="1" maxlength="5">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="price" class="form-label">Price (Single item) <span class="required">*</span></label>
-                                <input type="number" class="form-control" id="price" name="price" required min="2" maxlength="10">
+                                <input type="text" class="form-control" id="price" name="price" required min="2" maxlength="12">
                             </div>
 
                         </div>

@@ -30,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Fetch the asset condition data
 $query = "SELECT * FROM assets_condition WHERE sl_no = $condition_id";
 $result = mysqli_query($conn, $query);
+
+if (!$result) {
+    die("Error in query: " . mysqli_error($conn));
+}
+
 $asset_condition = mysqli_fetch_assoc($result);
 
 if (!$asset_condition) {
@@ -38,8 +43,14 @@ if (!$asset_condition) {
 }
 
 // Fetch the corresponding asset data
-$asset_query = "SELECT * FROM assets WHERE asset_type = '$asset_type' AND serial_no = '$serial_no'";
+$asset_type = $asset_condition['asset_type'];
+$asset_query = "SELECT * FROM assets WHERE asset_type = '$asset_type'";
 $asset_result = mysqli_query($conn, $asset_query);
+
+if (!$asset_result) {
+    die("Error in asset query: " . mysqli_error($conn));
+}
+
 $asset = mysqli_fetch_assoc($asset_result);
 
 if (!$asset) {
@@ -61,15 +72,15 @@ if (!$asset) {
                     <form method="POST" action="">
                         <div class="mb-3">
                             <label for="asset_type" class="form-label">Asset Type</label>
-                            <input type="text" class="form-control" id="asset_type" value="<?php echo htmlspecialchars($asset['asset_type']); ?>" readonly>
+                            <input type="text" class="form-control" id="asset_type" value="<?php echo htmlspecialchars($asset_condition['asset_type']); ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="model_no" class="form-label">Model Number</label>
-                            <input type="text" class="form-control" id="model_no" value="<?php echo htmlspecialchars($asset['model_no']); ?>" readonly>
+                            <input type="text" class="form-control" id="model_no" value="<?php echo htmlspecialchars($asset_condition['model_no']); ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="serial_no" class="form-label">Serial Number</label>
-                            <input type="text" class="form-control" id="serial_no" value="<?php echo htmlspecialchars($asset['serial_no']); ?>" readonly>
+                            <input type="text" class="form-control" id="serial_no" value="<?php echo htmlspecialchars($asset_condition['serial_no']); ?>" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
