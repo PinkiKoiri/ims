@@ -14,7 +14,7 @@ $offset = ($page - 1) * $rows_per_page;
 // Modify the query to include search
 $query = "SELECT * FROM assets WHERE 1=1";
 if (!empty($search_term)) {
-    $query .= " AND (asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
+    $query .= " AND (asset_type LIKE '%$search_term%')";
 }
 $query .= " ORDER BY sl_no LIMIT $rows_per_page OFFSET $offset";
 
@@ -23,12 +23,23 @@ $result = mysqli_query($conn, $query);
 // Modify total rows query to include search and sum quantity
 $total_rows_query = "SELECT COUNT(*) as count, SUM(quantity) as total_quantity FROM assets WHERE 1=1";
 if (!empty($search_term)) {
-    $total_rows_query .= " AND (asset_type LIKE '%$search_term%' OR model_no LIKE '%$search_term%')";
+    $total_rows_query .= " AND (asset_type LIKE '%$search_term%')";
 }
 $total_rows_result = mysqli_query($conn, $total_rows_query);
 $total_rows_data = mysqli_fetch_assoc($total_rows_result);
 $total_rows = $total_rows_data['count'];
 $total_quantity = $total_rows_data['total_quantity'];
+
+// Calculate "In use" and "Available to Assign" for the specific asset type
+$in_use_query = "SELECT COUNT(*) as in_use FROM assets_condition WHERE status != 'Non repairable'";
+if (!empty($search_term)) {
+    $in_use_query .= " AND (asset_type LIKE '%$search_term%')";
+}
+$in_use_result = mysqli_query($conn, $in_use_query);
+$in_use_data = mysqli_fetch_assoc($in_use_result);
+$in_use = $in_use_data['in_use'];
+
+$available_to_assign = $total_quantity - $in_use;
 
 // Calculate total pages
 $total_pages = ceil($total_rows / $rows_per_page);
@@ -58,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
     <form method="GET" class="mb-4">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <input type="text" class="form-control" name="search_term" placeholder="Search by Asset Type, or Model No" value="<?php echo htmlspecialchars($search_term); ?>">
+                <input type="text" class="form-control" name="search_term" placeholder="Search by Asset Type" value="<?php echo htmlspecialchars($search_term); ?>">
             </div>
             <div class="col-md-3 mb-3">
                 <button type="submit" class="btn btn-primary">Search</button>
@@ -67,11 +78,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
         </div>
     </form>
 
-    <!-- Display total count of assets matching the search term -->
+    <!-- Display metrics for the searched asset type -->
     <?php if (!empty($search_term)): ?>
         <div class="alert alert-info">
-            <!-- Total assets found: <?php echo $total_rows; ?> | -->
-            Total quantity delivered: <?php echo $total_quantity; ?>
+            <div class="metric-row">
+                <div class="metric">
+                    <strong>Total quantity delivered</strong>
+                    <?php echo $total_quantity; ?>
+                </div>
+                <div class="metric">
+                    <strong>In use</strong>
+                    <?php echo $in_use; ?>
+                </div>
+                <div class="metric">
+                    <strong>Available to Assign</strong>
+                    <?php echo $available_to_assign; ?>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -92,8 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
                         <tr>
                             <th>Sl no</th>
                             <th>Asset Type</th>
-                            <th>Model no</th>
-                            <th>Serial no</th>
+                            <!-- <th>Model no</th> -->
+                            <!-- <th>Serial no</th> -->
                             <th>Delivery Date</th>
                             <!-- <th>Installation Type</th> -->
                             <!-- <th>Installation Date</th> -->
@@ -114,8 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
                             echo "<tr>";
                             echo "<td>" . $row['sl_no'] . "</td>";
                             echo "<td>" . $row['asset_type'] . "</td>";
-                            echo "<td>" . $row['model_no'] . "</td>";
-                            echo "<td>" . $row['serial_no'] . "</td>";
+                            // echo "<td>" . $row['model_no'] . "</td>";
+                            // echo "<td>" . $row['serial_no'] . "</td>";
                             echo "<td>" . $row['delivery_date'] . "</td>";
                             // echo "<td>" . $row['installation_type'] . "</td>";
                             // echo "<td>" . $row['installation_date'] . "</td>";
@@ -205,6 +228,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
 
     .status-dot.non-repairable {
         background-color: #dc2626;
+    }
+</style>
+
+<style>
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .metric {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        margin: 0 5px;
+    }
+
+    .metric strong {
+        display: block;
+        font-size: 1.2em;
+        margin-bottom: 5px;
     }
 </style>
 
