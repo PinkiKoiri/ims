@@ -124,12 +124,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="quantity" class="form-label">Quantity Delivered <span class="required">*</span></label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" required min="0.01" step="0.01" maxlength="5">
+                                <input type="number" class="form-control" id="quantity" name="quantity" required min="1" maxlength="5">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="price" class="form-label">Price (Single item) <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="price" name="price" required min="2" maxlength="12">
+                                <input type="text" class="form-control" id="price" name="price" required min="0.01" step="0.01" maxlength="12">
                             </div>
 
                         </div>
