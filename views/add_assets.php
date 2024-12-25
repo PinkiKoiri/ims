@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                             <div class=" col-md-6 mb-3">
                                 <label for="warranty" class="form-label">Warranty (in months)</label>
-                                <input type="text" class="form-control" id="warranty" name="warranty" min="1" maxlength="2">
+                                <input type="number" class="form-control" id="warranty" name="warranty" min="1" maxlength="2">
                             </div>
                         </div>
                         <div class="row">
