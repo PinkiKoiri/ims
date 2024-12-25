@@ -86,8 +86,9 @@ if (!$asset) {
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select" id="status" name="status" required>
                                 <option value="">Select Status</option>
-                                <option value="Active" <?php echo ($asset_condition['status'] == 'Active') ? 'selected' : ''; ?>>Active</option>
-                                <option value="Maintenance" <?php echo ($asset_condition['status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
+                               option value="Active (used)" <?php echo ($asset_condition['status'] == 'Active (used)') ? 'selected' : ''; ?>>Active(used)</option>
+                                <option value="Active (unused)" <?php echo ($asset_condition['status'] == 'Active (unused)') ? 'selected' : ''; ?>>Active(unused)</option>
+                                <option value="Stock availability" <?php echo ($asset_condition['status'] == 'Stock availability') ? 'selected' : ''; ?>>Stock availability</option>
                                 <option value="Non repairable" <?php echo ($asset_condition['status'] == 'Non repairable') ? 'selected' : ''; ?>>Non repairable</option>
                             </select>
                         </div>
